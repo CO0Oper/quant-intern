@@ -1,0 +1,12 @@
+{
+  "name": "quant-intern",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/harness.js",
+    "tv:health": "node src/tv_cdp_health.js",
+    "record": "node src/record_result.js",
+    "check": "node --check src/harness.js && node --check src/results_log.js && node --check src/record_result.js"
+  }
+}

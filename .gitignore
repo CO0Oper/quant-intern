@@ -1,0 +1,41 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Local agent/MCP configuration that may contain personal paths or credentials
+.claude/settings.local.json
+.claude/.credentials*
+.mcp.json
+mcp.json
+
+# Keep the repo-local Quant Intern skill, ignore other local Codex state
+.codex/*
+!.codex/skills/
+.codex/skills/*
+!.codex/skills/quant-intern/
+!.codex/skills/quant-intern/**
+
+# Dependencies
+node_modules/
+
+# Generated Quant Intern artifacts
+cache/
+*.pine.generated
+*.screenshot.*
+screenshots/
+logs/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Runtime output
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

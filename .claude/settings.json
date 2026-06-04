@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$root=$env:CLAUDE_PROJECT_DIR; if(-not $root){$root=(Get-Location).Path}; $p=Join-Path $root 'tasks\\runtime-checklist.md'; if(Test-Path $p){$c=[string](Get-Content -Raw $p); @{hookSpecificOutput=@{hookEventName='SessionStart';additionalContext=$c}}|ConvertTo-Json -Compress}",
+            "timeout": 10,
+            "statusMessage": "Loading TradingView fast-path checklist"
+          }
+        ]
+      }
+    ]
+  }
+}
