@@ -157,3 +157,34 @@ avoid them. Follow them on every back-half run — do not rediscover them.
   and any line containing `<` (the inline-timestamp duplicate rows), then dedup consecutive
   repeats and collapse whitespace. (Prereqs: `pip install yt-dlp`; user must be logged into
   YouTube in Firefox. The claude-in-chrome browser extension was NOT connected this session.)
+
+- **Results recording is the KEY deliverable — make it CODE, not prose (2026-06-04).**
+  The point of the pipeline is the recorded result of every run, so it can't live in
+  hand-written markdown. `src/results_log.js` is the canonical store: append-only JSON is
+  the source of truth, the MD table is *regenerated* from it on every write (never edit the
+  MD by hand — it gets overwritten). `summarizeResults(raw)` normalizes a raw
+  `data_get_strategy_results` payload (fraction→%, epoch ms→ISO day, pull
+  net%/B&H%/PF/win%/maxDD/sharpe/trades + the backtest window) and `recordResult()` stamps
+  `recorded_at` + computes the net-vs-B&H verdict. In CLI-agent mode use the
+  `src/record_result.js` CLI (`node src/record_result.js --results <raw.json> --source …
+  --run r0 --symbol … --timeframe … --verdict …`) — dump the MCP tool output to a file,
+  then ingest it so every run is logged identically. `npm run check` (`node --check`) guards
+  the three files. GOTCHA: harness.js already had a local `summarizeResults(backtest)`
+  (display string), so the import is aliased `summarizeResults as toResultRecord` to avoid a
+  redeclaration SyntaxError. Always compare a row's net% only to ITS OWN buyhold_pct (each
+  row's window differs).
+
+- **Pre-publish security audit recipe (2026-06-04).** Before making a repo public:
+  (1) grep committed files (not ignored ones) for secrets —
+  `git ls-files --others --exclude-standard -z | xargs -0 grep -nI -e api_key -e secret
+   -e token -e sk- -e BEGIN -e <username> -e <email>`;
+  (2) confirm secrets/artifacts are actually ignored with `git check-ignore .env
+   .claude/settings.local.json cache/<file>` (don't trust the .gitignore text alone);
+  (3) verify code reads keys from `process.env` only (no literals);
+  (4) sanitize personal info — Windows absolute paths leak the username (`C:\Users\<name>\…`).
+  Found clean except: username in absolute paths (todo/lessons) and a hardcoded path in the
+  `.claude/settings.json` SessionStart hook. FIX for the hook: use
+  `$root=$env:CLAUDE_PROJECT_DIR; if(-not $root){$root=(Get-Location).Path};
+   $p=Join-Path $root 'tasks\runtime-checklist.md'` — removes the username AND makes the hook
+  portable for anyone who clones. NOTE: editing `.claude/settings.json` is "self-modification"
+  and gets permission-gated — needs explicit user approval.

@@ -6,7 +6,25 @@ Legend: **[MUST]** = must-have, **[NICE]** = nice-to-have, **[CUT]** = out of sc
 
 ---
 
-## 📍 RESUME HERE (last updated 2026-06-04, session 2)
+## 📍 RESUME HERE (last updated 2026-06-04, session 3)
+
+**Session-3 progress (results recording + security audit + first commit):**
+- Added **results recording as a first-class pipeline step** (the key deliverable):
+  `src/results_log.js` (canonical JSON source-of-truth + auto-regenerated MD table,
+  fraction→%, epoch→ISO, net-vs-B&H verdict), `src/record_result.js` CLI for CLI-agent
+  mode, wired into `src/harness.js`, `npm run record` + `npm run check` added.
+  Verified: `npm run check` passes; r0/r1/r2 of the XAUUSD strategy logged to
+  `cache/results_log.{json,md}`.
+- **Security audit for public release — PASSED.** No hardcoded secrets (all keys via
+  `process.env`; `.env.example` empty). `.gitignore` confirmed (via `git check-ignore`)
+  to exclude `.env`, `.claude/settings.local.json`, `cache/`. Fixed: removed Windows
+  username from absolute paths in todo/lessons; made SessionStart hook portable via
+  `$env:CLAUDE_PROJECT_DIR` (was hardcoded `C:\Users\...`).
+- **Initial git commit** `92511bf` on `master` (35 files). Repo not yet pushed public.
+- ⚠ Open before publishing: confirm GitHub default branch; decide whether to keep
+  `memory/` (Claude persistent notes — currently clean & committed) public.
+
+---
 
 **Status:** Phase 0 PASSED. **Phase 1 (transcript → extract → resolve) now also PROVEN
 end-to-end on a real video.** Next: Phase 2 (Pine generation + compile loop) using
