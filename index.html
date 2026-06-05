@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quant Intern — does that YouTube trading strategy actually work?</title>
+<meta name="description" content="Paste a YouTube trading-strategy video URL. Quant Intern transcribes it, codes the strategy in PineScript, backtests it on real market data, and tells you the truth versus buy & hold." />
+<meta property="og:title" content="Quant Intern" />
+<meta property="og:description" content="Does that YouTube trading strategy actually work? An AI-agent pipeline that backtests it and tells you the truth vs buy & hold." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#080b11; --bg2:#0d121b; --panel:#111824; --panel2:#0f1622;
+    --border:#1e2735; --border2:#2a3545;
+    --fg:#e9eef6; --muted:#8a96a8; --faint:#5c6677;
+    --green:#3fb950; --red:#f85149; --amber:#d6a514;
+    --c1:#3ddc97; --c2:#38bdf8; --c3:#7c8cff;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --grad:linear-gradient(100deg,var(--c1),var(--c2) 55%,var(--c3));
+    --maxw:1120px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .mono{font-family:var(--mono)}
+
+  /* ===== NAV ===== */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+    background:rgba(8,11,17,.72);border-bottom:1px solid var(--border)}
+  nav .wrap{display:flex;align-items:center;gap:18px;height:62px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px}
+  .logo .mark{width:26px;height:26px;border-radius:7px;background:var(--grad);
+    display:grid;place-items:center;color:#03110c;font-family:var(--mono);font-weight:700;font-size:15px}
+  nav .links{margin-left:auto;display:flex;align-items:center;gap:26px;font-size:14px;color:var(--muted)}
+  nav .links a:hover{color:var(--fg)}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:9px;
+    font-size:14px;font-weight:600;border:1px solid var(--border2);transition:.18s;white-space:nowrap}
+  .btn:hover{border-color:#3a4759;transform:translateY(-1px)}
+  .btn.primary{background:var(--grad);color:#04130d;border:none;box-shadow:0 6px 24px -8px var(--c2)}
+  .btn.primary:hover{box-shadow:0 10px 30px -8px var(--c2)}
+  @media(max-width:680px){nav .links a.hidesm{display:none}}
+
+  /* ===== HERO ===== */
+  header.hero{position:relative;padding:96px 0 84px;overflow:hidden}
+  .hero .glow{position:absolute;inset:0;z-index:0;pointer-events:none}
+  .hero .glow::before,.hero .glow::after{content:"";position:absolute;border-radius:50%;filter:blur(90px);opacity:.4}
+  .hero .glow::before{width:560px;height:560px;left:-140px;top:-160px;
+    background:radial-gradient(circle,rgba(61,220,151,.5),transparent 65%)}
+  .hero .glow::after{width:620px;height:620px;right:-180px;top:-80px;
+    background:radial-gradient(circle,rgba(124,140,255,.42),transparent 65%);animation:float 14s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(34px)}}
+  .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+  @media(max-width:900px){.hero .wrap{grid-template-columns:1fr;gap:38px}header.hero{padding:60px 0 56px}}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;
+    color:var(--c1);border:1px solid var(--border2);background:var(--panel);padding:6px 12px;border-radius:999px;margin-bottom:24px}
+  .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--c1);box-shadow:0 0 10px var(--c1)}
+  h1{font-size:clamp(34px,5.4vw,60px);line-height:1.04;font-weight:900;letter-spacing:-.035em;margin-bottom:22px}
+  .hero p.lead{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:560px;margin-bottom:32px}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap}
+  .trust{margin-top:26px;display:flex;align-items:center;gap:18px;color:var(--faint);font-size:13px;font-family:var(--mono)}
+  .trust span{display:flex;align-items:center;gap:7px}
+  .trust .ok{color:var(--green)}
+
+  /* terminal */
+  .term{background:linear-gradient(180deg,#0c121c,#0a0f18);border:1px solid var(--border2);
+    border-radius:14px;overflow:hidden;box-shadow:0 30px 70px -30px rgba(0,0,0,.8);font-family:var(--mono);font-size:13px}
+  .term .bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:#0e151f;border-bottom:1px solid var(--border)}
+  .term .bar i{width:11px;height:11px;border-radius:50%;display:block}
+  .term .bar .r{background:#ff5f56}.term .bar .y{background:#ffbd2e}.term .bar .g{background:#27c93f}
+  .term .bar .t{margin-left:8px;color:var(--faint);font-size:12px}
+  .term .body{padding:16px 16px 20px;min-height:268px}
+  .term .line{white-space:pre-wrap;margin:2px 0}
+  .term .cmd{color:#cdd6e3}.term .cmd .p{color:var(--c1)}
+  .term .ok{color:var(--green)}.term .info{color:var(--muted)}.term .warn{color:var(--amber)}
+  .term .bad{color:var(--red)}
+  .term .cursor{display:inline-block;width:8px;height:15px;background:var(--c1);
+    vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  /* ===== STAT BAND ===== */
+  .stats{border-block:1px solid var(--border);background:var(--bg2)}
+  .stats .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;padding:0}
+  .stat{padding:30px 22px;text-align:center}
+  .stat .n{font-family:var(--mono);font-weight:700;font-size:clamp(28px,4vw,40px);letter-spacing:-.03em}
+  .stat .l{color:var(--muted);font-size:13px;margin-top:6px}
+  @media(max-width:720px){.stats .wrap{grid-template-columns:repeat(2,1fr)}.stat{border-top:1px solid var(--border)}}
+
+  /* ===== SECTIONS ===== */
+  section{padding:88px 0}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 54px}
+  .kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--c2);margin-bottom:14px}
+  h2{font-size:clamp(26px,3.6vw,38px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .sec-head p{color:var(--muted);margin-top:16px;font-size:16.5px}
+
+  /* problem band */
+  .band{background:
+    radial-gradient(700px 280px at 50% -10%,rgba(124,140,255,.10),transparent),
+    var(--bg2);border-block:1px solid var(--border);text-align:center}
+  .band .wrap{max-width:780px}
+  .band .big{font-size:clamp(22px,3vw,30px);font-weight:700;letter-spacing:-.02em;line-height:1.35}
+  .band .big em{font-style:normal}
+
+  /* ===== PIPELINE ===== */
+  .legend{display:flex;justify-content:center;gap:22px;margin-bottom:34px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:8px}
+  .chip{width:11px;height:11px;border-radius:3px}
+  .chip.code{background:var(--c1)}.chip.mcp{background:var(--c3)}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:860px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.steps{grid-template-columns:1fr}}
+  .step{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:13px;
+    padding:22px 20px;transition:.2s;overflow:hidden}
+  .step:hover{border-color:var(--border2);transform:translateY(-3px);background:var(--panel2)}
+  .step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;opacity:.85}
+  .step.code::before{background:var(--c1)}.step.mcp::before{background:var(--c3)}
+  .step .num{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .step h3{font-size:16px;font-weight:700;margin:8px 0 7px;letter-spacing:-.01em}
+  .step p{font-size:13.5px;color:var(--muted);line-height:1.55}
+  .step .tag{position:absolute;top:16px;right:14px;font-family:var(--mono);font-size:10px;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+
+  /* ===== RESULTS ===== */
+  .results-wrap{display:grid;grid-template-columns:1fr;gap:0;background:var(--panel);
+    border:1px solid var(--border);border-radius:16px;overflow:hidden}
+  .results-top{display:flex;align-items:center;gap:16px;padding:20px 22px;border-bottom:1px solid var(--border);
+    background:var(--panel2);flex-wrap:wrap}
+  .results-top .vid{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .results-top .verdict{margin-left:auto;display:inline-flex;align-items:center;gap:10px;
+    font-weight:700;font-size:14px;color:var(--red);background:rgba(248,81,73,.1);
+    border:1px solid rgba(248,81,73,.3);padding:7px 14px;border-radius:999px}
+  .tablewrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:13.5px;min-width:560px}
+  th,td{padding:13px 18px;text-align:right;border-bottom:1px solid var(--border)}
+  th{color:var(--faint);font-weight:500;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;
+    position:sticky;top:0;background:var(--panel)}
+  td.l,th.l{text-align:left}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:rgba(255,255,255,.02)}
+  .sym{color:var(--c2)}
+  .pos{color:var(--green)}.neg{color:var(--red)}
+  .pill{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:600}
+  .pill.beats{color:var(--green);background:rgba(63,185,80,.14)}
+  .pill.loses{color:var(--red);background:rgba(248,81,73,.12)}
+  .results-note{padding:16px 22px;color:var(--faint);font-size:12.5px;border-top:1px solid var(--border);font-family:var(--mono)}
+
+  /* ===== FEATURES ===== */
+  .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:860px){.feat{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.feat{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:26px 22px;transition:.2s}
+  .card:hover{border-color:var(--border2);transform:translateY(-3px)}
+  .card .ico{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;margin-bottom:16px;
+    background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.22);font-size:20px}
+  .card h3{font-size:16.5px;font-weight:700;margin-bottom:9px;letter-spacing:-.01em}
+  .card p{font-size:14px;color:var(--muted);line-height:1.6}
+
+  /* tech strip */
+  .tech{border-block:1px solid var(--border);background:var(--bg2);padding:36px 0}
+  .tech .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px 30px}
+  .tech .lab{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;width:100%;text-align:center;margin-bottom:6px}
+  .tech .item{font-family:var(--mono);font-size:14px;color:var(--muted);display:flex;align-items:center;gap:9px}
+  .tech .item b{color:var(--fg);font-weight:600}
+  .tech .item::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--grad)}
+
+  /* CTA */
+  .final{text-align:center;position:relative;overflow:hidden}
+  .final::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(600px 300px at 50% 120%,rgba(61,220,151,.16),transparent)}
+  .final .wrap{position:relative}
+  .final h2{margin-bottom:18px}
+  .final p{color:var(--muted);max-width:520px;margin:0 auto 30px;font-size:16.5px}
+
+  /* footer */
+  footer{border-top:1px solid var(--border);padding:34px 0;color:var(--faint);font-size:13.5px}
+  footer .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between}
+  footer a{color:var(--muted)}footer a:hover{color:var(--fg)}
+  .disc{max-width:var(--maxw);margin:18px auto 0;padding:0 24px;color:var(--faint);font-size:11.5px;line-height:1.5;opacity:.8}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#top"><span class="mark">QI</span> Quant&nbsp;Intern</a>
+    <div class="links">
+      <a class="hidesm" href="#how">How it works</a>
+      <a class="hidesm" href="#results">Results</a>
+      <a class="hidesm" href="#features">Features</a>
+      <a class="btn" href="https://github.com/CO0Oper/quant-intern" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="glow"></div>
+  <div class="wrap">
+    <div>
+      <span class="eyebrow"><span class="dot"></span> AI-agent pipeline · TradingView MCP</span>
+      <h1>Does that YouTube trading strategy <span class="grad">actually work?</span></h1>
+      <p class="lead">Paste a video URL. Quant Intern transcribes it, codes the strategy in
+        PineScript, backtests it on real market data, and tells you the truth —
+        <strong>versus simply buying and holding.</strong></p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/CO0Oper/quant-intern" target="_blank" rel="noopener">★ View on GitHub</a>
+        <a class="btn" href="#results">See a real verdict ↓</a>
+      </div>
+      <div class="trust">
+        <span><span class="ok">✓</span> No API key needed</span>
+        <span><span class="ok">✓</span> Honest benchmark</span>
+        <span><span class="ok">✓</span> Open source · MIT</span>
+      </div>
+    </div>
+
+    <div class="term" aria-hidden="true">
+      <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="t">quant-intern — run</span></div>
+      <div class="body" id="termBody"></div>
+    </div>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="wrap">
+    <div class="stat reveal"><div class="n grad" data-count="8">8</div><div class="l">automated steps</div></div>
+    <div class="stat reveal"><div class="n" data-count="9" data-suffix="">9</div><div class="l">backtests / run</div></div>
+    <div class="stat reveal"><div class="n neg" data-count="1" data-prefix="" data-suffix="/9">1/9</div><div class="l">beat buy &amp; hold</div></div>
+    <div class="stat reveal"><div class="n grad" data-count="0">0</div><div class="l">API keys required</div></div>
+  </div>
+</div>
+
+<section class="band">
+  <div class="wrap reveal">
+    <p class="big">Finance YouTube is full of <em>“high&nbsp;win&nbsp;rate”</em> strategies.
+      Almost none of them beat just holding the asset.<br>
+      <span class="grad">Quant Intern settles it objectively</span> — every backtest is shown
+      next to its own buy-and-hold benchmark, over the exact same window.</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">The pipeline</div>
+      <h2>From a YouTube URL to a backtested verdict</h2>
+      <p>An agent drives the whole chain. The front half is code + LLM reasoning; the back
+        half is real chart control through the TradingView MCP — no hand-rolled automation.</p>
+    </div>
+    <div class="legend reveal">
+      <span><span class="chip code"></span> Code + LLM reasoning</span>
+      <span><span class="chip mcp"></span> TradingView MCP (live chart)</span>
+    </div>
+    <div class="steps">
+      <div class="step code reveal"><span class="tag">code</span><div class="num">01</div><h3>Fetch transcript</h3><p>YouTube URL → transcript text, cached to disk for offline-safe runs.</p></div>
+      <div class="step code reveal"><span class="tag">agent</span><div class="num">02</div><h3>Extract the rules</h3><p>The transcript becomes a structured Strategy Spec — indicators, entries, exits.</p></div>
+      <div class="step code reveal"><span class="tag">agent</span><div class="num">03</div><h3>Resolve ambiguity</h3><p>Vague language is made concrete. Every assumption is surfaced, never silent.</p></div>
+      <div class="step code reveal"><span class="tag">agent</span><div class="num">04</div><h3>Generate PineScript</h3><p>The spec is compiled into a PineScript v5 <span class="mono">strategy()</span>.</p></div>
+      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">05</div><h3>Compile &amp; auto-fix</h3><p>Set source → compile → read errors → repair, looped. A known-good fallback if it ever can't.</p></div>
+      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">06</div><h3>Backtest matrix</h3><p>Swept across a ticker × timeframe grid on a live TradingView chart.</p></div>
+      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">07</div><h3>Verdict vs buy &amp; hold</h3><p>Each cell compared only to its own same-window benchmark. Beats or loses.</p></div>
+      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">08</div><h3>Annotate the chart</h3><p>The verdict and key levels are drawn on the chart and screenshotted.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="results" style="padding-top:34px">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">A real run</div>
+      <h2>“Bollinger Bands + RSI” — the receipts</h2>
+      <p>A popular mean-reversion strategy, run end-to-end on a video it had never seen,
+        across nine market/timeframe cells. The honest result:</p>
+    </div>
+    <div class="results-wrap reveal">
+      <div class="results-top">
+        <span class="vid">▶ youtube.com/watch?v=pCmJ8wsAS_w</span>
+        <span class="verdict">✕ 1 / 9 beat buy &amp; hold → SKIP</span>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr>
+            <th class="l">Symbol</th><th>TF</th><th>Strategy net</th><th>Buy &amp; hold</th><th>Verdict</th><th>Profit factor</th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="l sym">XAU/USD</td><td>5m</td><td class="neg">−0.19%</td><td class="neg">−14.19%</td><td><span class="pill beats">beats</span></td><td>0.996</td></tr>
+            <tr><td class="l sym">XAU/USD</td><td>1h</td><td class="neg">−12.22%</td><td class="pos">+143.5%</td><td><span class="pill loses">loses</span></td><td>0.88</td></tr>
+            <tr><td class="l sym">XAU/USD</td><td>1D</td><td class="neg">−65.42%</td><td class="pos">+2540%</td><td><span class="pill loses">loses</span></td><td>0.72</td></tr>
+            <tr><td class="l sym">EUR/USD</td><td>1h</td><td class="pos">+7.82%</td><td class="pos">+10.43%</td><td><span class="pill loses">loses</span></td><td>1.22</td></tr>
+            <tr><td class="l sym">NQ1!</td><td>1h</td><td class="pos">+10.98%</td><td class="pos">+150.5%</td><td><span class="pill loses">loses</span></td><td>1.12</td></tr>
+            <tr><td class="l sym">ES1!</td><td>1h</td><td class="neg">−5.60%</td><td class="pos">+89.31%</td><td><span class="pill loses">loses</span></td><td>0.92</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="results-note">↳ Mean-reversion shorts get run over in a trend. Least-bad on ranging FX (EUR/USD, the only positive-Sharpe cell). Compare each row only to its own buy &amp; hold — windows differ per timeframe.</div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="band">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">Why it's different</div>
+      <h2>Built to tell the truth, not to flatter</h2>
+    </div>
+    <div class="feat">
+      <div class="card reveal"><div class="ico">⚖️</div><h3>Always vs buy &amp; hold</h3><p>A backtest in isolation looks like cherry-picking. Every result is shown against its same-window benchmark, so the verdict is objective.</p></div>
+      <div class="card reveal"><div class="ico">🔑</div><h3>No API key</h3><p>In CLI-agent mode the agent is the LLM and drives the TradingView MCP tools directly. Nothing to provision.</p></div>
+      <div class="card reveal"><div class="ico">🛟</div><h3>Self-healing compile</h3><p>A compile-and-fix loop repairs generated PineScript, with a tested known-good fallback so a run never dead-ends.</p></div>
+      <div class="card reveal"><div class="ico">📊</div><h3>Ticker × timeframe matrix</h3><p>One strategy, swept across instruments and resolutions, so a single lucky window can't masquerade as edge.</p></div>
+      <div class="card reveal"><div class="ico">📡</div><h3>Watchable dashboard</h3><p>A zero-dependency web view streams every step live — rules, code, compile status, results, verdict.</p></div>
+      <div class="card reveal"><div class="ico">🗂️</div><h3>Every run recorded</h3><p>Append-only results log is the source of truth; each strategy is saved under a canonical, collision-free name.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="tech">
+  <div class="wrap">
+    <div class="lab">Built with</div>
+    <div class="item"><b>Claude Code</b> / Codex</div>
+    <div class="item"><b>TradingView MCP</b></div>
+    <div class="item"><b>PineScript v5</b></div>
+    <div class="item"><b>Node.js</b> · zero-dep</div>
+    <div class="item"><b>Chrome DevTools Protocol</b></div>
+  </div>
+</div>
+
+<section class="final">
+  <div class="wrap reveal">
+    <div class="kicker">Open source · MIT</div>
+    <h2>Read the code. Run it yourself.</h2>
+    <p>The full pipeline, the prompts, the results log, and the watchable UI — all in the repo.</p>
+    <div class="cta-row" style="justify-content:center">
+      <a class="btn primary" href="https://github.com/CO0Oper/quant-intern" target="_blank" rel="noopener">★ View on GitHub</a>
+      <a class="btn" href="https://github.com/CO0Oper/quant-intern#quick-start-cli-agent-mode" target="_blank" rel="noopener">Quick start →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="logo"><span class="mark">QI</span> Quant Intern</span>
+    <span>MIT © 2026 Cooper · built with Claude</span>
+    <a href="https://github.com/CO0Oper/quant-intern" target="_blank" rel="noopener">github.com/CO0Oper/quant-intern ↗</a>
+  </div>
+  <p class="disc">Quant Intern is a research &amp; engineering demo. Backtest results are historical
+    and not investment advice; no commissions or slippage are modeled. Nothing here is a
+    recommendation to buy or sell any security.</p>
+</footer>
+
+<script>
+  // ---- reveal on scroll ----
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.14});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // ---- count up ----
+  const cio=new IntersectionObserver((es)=>{es.forEach(e=>{
+    if(!e.isIntersecting)return; cio.unobserve(e.target);
+    const el=e.target, end=+el.dataset.count, pre=el.dataset.prefix||'', suf=el.dataset.suffix||'';
+    let t0=null,dur=900;
+    function tick(ts){if(!t0)t0=ts;const p=Math.min((ts-t0)/dur,1);
+      el.textContent=pre+Math.round(p*end)+suf; if(p<1)requestAnimationFrame(tick);}
+    requestAnimationFrame(tick);
+  })},{threshold:.6});
+  document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+  // ---- terminal typing ----
+  const lines=[
+    {h:'<span class="cmd"><span class="p">$</span> quant-intern run &lt;youtube-url&gt;</span>',d:380},
+    {h:'<span class="info">› fetching transcript…</span>',d:520},
+    {h:'<span class="ok">✓ transcript fetched</span>  <span class="info">1,292 words</span>',d:300},
+    {h:'<span class="ok">✓ rules extracted</span>  <span class="info">Bollinger(30,2) + RSI(13)</span>',d:340},
+    {h:'<span class="ok">✓ ambiguity resolved</span>  <span class="info">+ squeeze filter</span>',d:340},
+    {h:'<span class="ok">✓ PineScript compiled</span>  <span class="info">clean · 1st attempt</span>',d:380},
+    {h:'<span class="info">› backtesting 9 cells vs buy &amp; hold…</span>',d:620},
+    {h:'<span class="bad">✕ 1 / 9 beat buy &amp; hold</span>',d:240},
+    {h:'<span class="warn">⚑ verdict: SKIP — does not generalize</span>',d:200},
+  ];
+  const body=document.getElementById('termBody');
+  let i=0;
+  function add(){
+    if(i>=lines.length){
+      const c=document.createElement('span');c.className='cursor';
+      const last=document.createElement('div');last.className='line';last.appendChild(c);
+      body.appendChild(last);return;
+    }
+    const d=document.createElement('div');d.className='line';d.innerHTML=lines[i].h;
+    body.appendChild(d);
+    const wait=lines[i].d; i++;
+    setTimeout(add,wait);
+  }
+  // kick off shortly after load
+  setTimeout(add,500);
+</script>
+</body>
+</html>
