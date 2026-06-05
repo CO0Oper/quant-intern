@@ -1,6 +1,18 @@
-# Quant Intern
+<p align="center">
+  <img src="assets/qi-logo.png" alt="Quant Intern logo" width="180" />
+</p>
 
-**Turn a YouTube trading-strategy video into a backtested verdict — automatically.**
+<h1 align="center">Quant Intern</h1>
+
+<p align="center"><strong>Turn a YouTube trading-strategy video into a backtested verdict — automatically.</strong></p>
+
+<p align="center">
+  <a href="https://co0oper.github.io/quant-intern/">Live page</a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#caveats--honest-limits">Caveats</a>
+</p>
+
+---
 
 Paste a YouTube URL; Quant Intern fetches the transcript, extracts the trading rules
 into a structured spec, resolves the vague parts into concrete code, generates a
