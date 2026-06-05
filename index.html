@@ -266,49 +266,6 @@
   </div>
 </header>
 
-<div class="stats">
-  <div class="wrap">
-    <div class="stat reveal"><div class="n grad" data-count="8">8</div><div class="l">automated steps</div></div>
-    <div class="stat reveal"><div class="n" data-count="24">24</div><div class="l">backtests / run</div></div>
-    <div class="stat reveal"><div class="n neg" data-count="3" data-suffix="/24">3/24</div><div class="l">beat buy &amp; hold</div></div>
-    <div class="stat reveal"><div class="n grad" data-count="0">0</div><div class="l">API keys required</div></div>
-  </div>
-</div>
-
-<section class="band">
-  <div class="wrap reveal">
-    <p class="big">Finance YouTube is full of <em>“high&nbsp;win&nbsp;rate”</em> strategies.
-      Almost none of them beat just holding the asset.<br>
-      <span class="grad">Quant Intern settles it objectively</span> — every backtest is shown
-      next to its own buy-and-hold benchmark, over the exact same window.</p>
-  </div>
-</section>
-
-<section id="how">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="kicker">The pipeline</div>
-      <h2>From a YouTube URL to a backtested verdict</h2>
-      <p>An agent drives the whole chain. The front half is code + LLM reasoning; the back
-        half is real chart control through the TradingView MCP — no hand-rolled automation.</p>
-    </div>
-    <div class="legend reveal">
-      <span><span class="chip code"></span> Code + LLM reasoning</span>
-      <span><span class="chip mcp"></span> TradingView MCP (live chart)</span>
-    </div>
-    <div class="steps">
-      <div class="step code reveal"><span class="tag">code</span><div class="num">01</div><h3>Fetch transcript</h3><p>YouTube URL → transcript text, cached to disk for offline-safe runs.</p></div>
-      <div class="step code reveal"><span class="tag">agent</span><div class="num">02</div><h3>Extract the rules</h3><p>The transcript becomes a structured Strategy Spec — indicators, entries, exits.</p></div>
-      <div class="step code reveal"><span class="tag">agent</span><div class="num">03</div><h3>Resolve ambiguity</h3><p>Vague language is made concrete. Every assumption is surfaced, never silent.</p></div>
-      <div class="step code reveal"><span class="tag">agent</span><div class="num">04</div><h3>Generate PineScript</h3><p>The spec is compiled into a PineScript v5 <span class="mono">strategy()</span>.</p></div>
-      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">05</div><h3>Compile &amp; auto-fix</h3><p>Set source → compile → read errors → repair, looped. A known-good fallback if it ever can't.</p></div>
-      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">06</div><h3>Backtest matrix</h3><p>Swept across a ticker × timeframe grid on a live TradingView chart.</p></div>
-      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">07</div><h3>Verdict vs buy &amp; hold</h3><p>Each cell compared only to its own same-window benchmark. Beats or loses.</p></div>
-      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">08</div><h3>Annotate the chart</h3><p>The verdict and key levels are drawn on the chart and screenshotted.</p></div>
-    </div>
-  </div>
-</section>
-
 <section id="results" style="padding-top:34px">
   <div class="wrap">
     <div class="sec-head reveal">
@@ -375,6 +332,49 @@
         <img src="img/chart-nq.png" alt="NASDAQ 100 daily candle chart with the strategy applied" loading="lazy" />
         <figcaption><b>NASDAQ&nbsp;100 · 1D</b> — a relentless uptrend it can't keep up with. <span class="v">−4.83% vs +2074% → loses.</span></figcaption>
       </figure>
+    </div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="wrap">
+    <div class="stat reveal"><div class="n grad" data-count="8">8</div><div class="l">automated steps</div></div>
+    <div class="stat reveal"><div class="n" data-count="24">24</div><div class="l">backtests / run</div></div>
+    <div class="stat reveal"><div class="n neg" data-count="3" data-suffix="/24">3/24</div><div class="l">beat buy &amp; hold</div></div>
+    <div class="stat reveal"><div class="n grad" data-count="0">0</div><div class="l">API keys required</div></div>
+  </div>
+</div>
+
+<section class="band">
+  <div class="wrap reveal">
+    <p class="big">Finance YouTube is full of <em>“high&nbsp;win&nbsp;rate”</em> strategies.
+      Almost none of them beat just holding the asset.<br>
+      <span class="grad">Quant Intern settles it objectively</span> — every backtest is shown
+      next to its own buy-and-hold benchmark, over the exact same window.</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="kicker">The pipeline</div>
+      <h2>From a YouTube URL to a backtested verdict</h2>
+      <p>An agent drives the whole chain. The front half is code + LLM reasoning; the back
+        half is real chart control through the TradingView MCP — no hand-rolled automation.</p>
+    </div>
+    <div class="legend reveal">
+      <span><span class="chip code"></span> Code + LLM reasoning</span>
+      <span><span class="chip mcp"></span> TradingView MCP (live chart)</span>
+    </div>
+    <div class="steps">
+      <div class="step code reveal"><span class="tag">code</span><div class="num">01</div><h3>Fetch transcript</h3><p>YouTube URL → transcript text, cached to disk for offline-safe runs.</p></div>
+      <div class="step code reveal"><span class="tag">agent</span><div class="num">02</div><h3>Extract the rules</h3><p>The transcript becomes a structured Strategy Spec — indicators, entries, exits.</p></div>
+      <div class="step code reveal"><span class="tag">agent</span><div class="num">03</div><h3>Resolve ambiguity</h3><p>Vague language is made concrete. Every assumption is surfaced, never silent.</p></div>
+      <div class="step code reveal"><span class="tag">agent</span><div class="num">04</div><h3>Generate PineScript</h3><p>The spec is compiled into a PineScript v5 <span class="mono">strategy()</span>.</p></div>
+      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">05</div><h3>Compile &amp; auto-fix</h3><p>Set source → compile → read errors → repair, looped. A known-good fallback if it ever can't.</p></div>
+      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">06</div><h3>Backtest matrix</h3><p>Swept across a ticker × timeframe grid on a live TradingView chart.</p></div>
+      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">07</div><h3>Verdict vs buy &amp; hold</h3><p>Each cell compared only to its own same-window benchmark. Beats or loses.</p></div>
+      <div class="step mcp reveal"><span class="tag">mcp</span><div class="num">08</div><h3>Annotate the chart</h3><p>The verdict and key levels are drawn on the chart and screenshotted.</p></div>
     </div>
   </div>
 </section>
