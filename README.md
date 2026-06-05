@@ -188,4 +188,4 @@ The pipeline has ~7 fragile links, so the design front-loads the risky ones:
 
 ## License
 
-Not yet specified. Treat as all-rights-reserved until a license file is added.
+[MIT](LICENSE) © 2026 Cooper.
