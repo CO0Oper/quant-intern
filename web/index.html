@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quant Intern — live run</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d; --fg: #e6edf3;
+    --muted: #8b949e; --green: #3fb950; --red: #f85149; --amber: #d29922;
+    --accent: #58a6ff; --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    padding: 16px 22px; border-bottom: 1px solid var(--border); background: var(--panel); }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  #status { margin-left: auto; font: 12px var(--mono); color: var(--muted); }
+  #status .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red); margin-right: 6px; vertical-align: middle; }
+  #status.live .dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  main { display: grid; grid-template-columns: 360px 1fr; gap: 0; height: calc(100vh - 59px); }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; height: auto; } }
+
+  /* event stream */
+  #stream { border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+  #stream h2, #results h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted); margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  #log { flex: 1; overflow-y: auto; padding: 10px 14px; font: 12.5px/1.5 var(--mono); }
+  #log .ev { display: flex; gap: 8px; padding: 2px 0; border-bottom: 1px solid #1f242c; }
+  #log .t { color: #586069; white-space: nowrap; }
+  #log .s { color: var(--fg); }
+  #log .d { color: var(--muted); }
+  #log .ok .s { color: var(--green); }
+  #log .warn .s { color: var(--amber); }
+  #log .error .s { color: var(--red); }
+  #log .empty { color: var(--muted); font-style: italic; }
+
+  /* results */
+  #results { display: flex; flex-direction: column; min-height: 0; }
+  #summary { display: flex; gap: 22px; flex-wrap: wrap; padding: 12px 18px;
+    border-bottom: 1px solid var(--border); }
+  #summary .card { font: 13px/1.3 var(--mono); }
+  #summary .card b { display: block; font-size: 20px; font-family: inherit; }
+  #summary .beats b { color: var(--green); } #summary .loses b { color: var(--red); }
+  .tablewrap { overflow: auto; flex: 1; }
+  table { border-collapse: collapse; width: 100%; font: 12.5px var(--mono); }
+  th, td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid #1f242c; }
+  th { position: sticky; top: 0; background: var(--panel); color: var(--muted);
+    text-align: right; font-weight: 600; border-bottom: 1px solid var(--border); }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--fg); }
+  th .arrow { color: var(--accent); font-size: 10px; margin-left: 4px; }
+  td.l, th.l { text-align: left; }
+  tr:hover td { background: #1b2027; }
+  .beats { color: var(--green); font-weight: 600; }
+  .loses { color: var(--red); }
+  .pos { color: var(--green); } .neg { color: var(--red); }
+  .pill { padding: 1px 7px; border-radius: 10px; font-size: 11px; }
+  .pill.beats { background: rgba(63,185,80,.15); }
+  .pill.loses { background: rgba(248,81,73,.12); }
+  .sym { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quant&nbsp;Intern</h1>
+  <span class="sub">YouTube&nbsp;→ strategy → live backtest vs buy&amp;hold</span>
+  <span id="status"><span class="dot"></span><span class="txt">connecting…</span></span>
+</header>
+
+<main>
+  <section id="stream">
+    <h2>Run stream</h2>
+    <div id="log"><div class="empty">waiting for run events…</div></div>
+  </section>
+
+  <section id="results">
+    <h2>Backtest results — compare net% only to its own row's B&amp;H</h2>
+    <div id="summary"></div>
+    <div class="tablewrap"><table id="tbl">
+      <thead><tr>
+        <th class="l sortable" data-key="recorded_at" data-type="str">recorded</th>
+        <th class="l sortable" data-key="symbol" data-type="str">symbol</th>
+        <th class="sortable" data-key="timeframe" data-type="tf">TF</th>
+        <th class="sortable" data-key="net_pct" data-type="num">net %</th>
+        <th class="sortable" data-key="buyhold_pct" data-type="num">B&amp;H %</th>
+        <th class="sortable" data-key="net_vs_benchmark" data-type="str">vs B&amp;H</th>
+        <th class="sortable" data-key="profit_factor" data-type="num">PF</th>
+        <th class="sortable" data-key="win_pct" data-type="num">win %</th>
+        <th class="sortable" data-key="max_dd_pct" data-type="num">maxDD %</th>
+        <th class="sortable" data-key="trades" data-type="num">trades</th>
+        <th class="l sortable" data-key="window_from" data-type="str">window</th>
+      </tr></thead>
+      <tbody><tr><td colspan="11" class="empty" style="text-align:center;color:var(--muted)">no results yet</td></tr></tbody>
+    </table></div>
+  </section>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const num = (v, suf = "") => (v === null || v === undefined ? "—" : v + suf);
+const cls = (v) => (v === null || v === undefined ? "" : (Number(v) >= 0 ? "pos" : "neg"));
+
+async function tick() {
+  let ok = true;
+  try { await Promise.all([loadStream(), loadResults()]); }
+  catch { ok = false; }
+  const st = $("#status");
+  st.classList.toggle("live", ok);
+  st.querySelector(".txt").textContent = ok
+    ? "live · " + new Date().toLocaleTimeString()
+    : "disconnected";
+}
+
+async function loadStream() {
+  const txt = await (await fetch("/run_log.jsonl", { cache: "no-store" })).text();
+  const lines = txt.split("\n").filter(Boolean);
+  const log = $("#log");
+  if (!lines.length) { log.innerHTML = '<div class="empty">waiting for run events…</div>'; return; }
+  const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 40;
+  log.innerHTML = lines.map((ln) => {
+    let e; try { e = JSON.parse(ln); } catch { return ""; }
+    const t = (e.ts || "").slice(11, 19);
+    return `<div class="ev ${e.level || "info"}">`
+      + `<span class="t">${t}</span>`
+      + `<span class="s">${esc(e.step || "")}</span>`
+      + (e.detail ? `<span class="d">${esc(e.detail)}</span>` : "")
+      + `</div>`;
+  }).join("");
+  if (atBottom) log.scrollTop = log.scrollHeight;
+}
+
+let currentRows = [];
+let sortState = { key: null, type: "str", dir: 1 };
+
+async function loadResults() {
+  currentRows = await (await fetch("/results_log.json", { cache: "no-store" })).json();
+  renderSummary(currentRows);
+  renderTable();
+}
+
+function tfMinutes(v) {
+  if (v === null || v === undefined) return Infinity;
+  const s = String(v).toUpperCase();
+  if (s === "D") return 1440; if (s === "W") return 10080; if (s === "M") return 43200;
+  const n = Number(s); return Number.isFinite(n) ? n : Infinity;
+}
+
+function cmp(a, b, key, type, dir) {
+  const av = a[key], bv = b[key];
+  const an = av === null || av === undefined || av === "";
+  const bn = bv === null || bv === undefined || bv === "";
+  if (an && bn) return 0;
+  if (an) return 1;          // nulls always sink, regardless of direction
+  if (bn) return -1;
+  let r;
+  if (type === "num") r = Number(av) - Number(bv);
+  else if (type === "tf") r = tfMinutes(av) - tfMinutes(bv);
+  else r = String(av).localeCompare(String(bv));
+  return r * dir;
+}
+
+function updateHeaderArrows() {
+  document.querySelectorAll("#tbl th.sortable").forEach((th) => {
+    const old = th.querySelector(".arrow"); if (old) old.remove();
+    if (th.dataset.key === sortState.key) {
+      const s = document.createElement("span");
+      s.className = "arrow"; s.textContent = sortState.dir > 0 ? "▲" : "▼";
+      th.appendChild(s);
+    }
+  });
+}
+
+document.querySelectorAll("#tbl th.sortable").forEach((th) => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.key, type = th.dataset.type || "str";
+    if (sortState.key === key) sortState.dir *= -1;
+    else sortState = { key, type, dir: type === "str" ? 1 : -1 };  // numbers/TF start high→low
+    renderTable();
+  });
+});
+
+function renderSummary(rows) {
+  const judged = rows.filter((r) => r.net_vs_benchmark === "beats" || r.net_vs_benchmark === "loses");
+  const beats = judged.filter((r) => r.net_vs_benchmark === "beats").length;
+  const latest = rows.length ? rows[rows.length - 1] : null;
+  $("#summary").innerHTML =
+      card("runs logged", rows.length)
+    + card("beats B&amp;H", beats, "beats")
+    + card("loses to B&amp;H", judged.length - beats, "loses")
+    + (latest && latest.strategy_name ? card("latest strategy", esc(latest.strategy_name)) : "");
+}
+const card = (label, val, kind = "") =>
+  `<div class="card ${kind}"><span style="color:var(--muted)">${label}</span><b>${val}</b></div>`;
+
+function renderTable() {
+  const rows = currentRows.slice();
+  if (sortState.key) rows.sort((a, b) => cmp(a, b, sortState.key, sortState.type, sortState.dir));
+  updateHeaderArrows();
+  const body = $("#tbl tbody");
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="11" class="empty" style="text-align:center;color:var(--muted)">no results yet</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map((r) => {
+    const v = r.net_vs_benchmark;
+    const when = (r.recorded_at || "").slice(0, 16).replace("T", " ");
+    const win = r.window_from && r.window_to ? `${r.window_from}→${r.window_to}` : "—";
+    return `<tr>
+      <td class="l">${when || "—"}</td>
+      <td class="l sym">${esc(r.symbol || "—")}</td>
+      <td>${num(r.timeframe)}</td>
+      <td class="${cls(r.net_pct)}">${num(r.net_pct)}</td>
+      <td class="${cls(r.buyhold_pct)}">${num(r.buyhold_pct)}</td>
+      <td><span class="pill ${v || ""}">${v || "—"}</span></td>
+      <td>${num(r.profit_factor)}</td>
+      <td>${num(r.win_pct)}</td>
+      <td>${num(r.max_dd_pct)}</td>
+      <td>${num(r.trades)}</td>
+      <td class="l" style="color:var(--muted)">${win}</td>
+    </tr>`;
+  }).join("");
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+tick();
+setInterval(tick, 2000);
+</script>
+</body>
+</html>

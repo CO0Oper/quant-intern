@@ -24,22 +24,27 @@ export async function fetchTranscript({ videoUrl, transcriptPath }) {
   );
 }
 
+// A YouTube video id is exactly 11 chars of [A-Za-z0-9_-]. Enforcing this on every
+// path (not just the bare-id branch) keeps the id safe to splice into a filename —
+// a crafted URL like ?v=../../etc/passwd can never escape cache/transcripts/.
+const YOUTUBE_ID = /^[a-zA-Z0-9_-]{11}$/;
+
 export function extractYouTubeId(value) {
   if (!value) {
     throw new Error("A YouTube URL or video id is required.");
   }
 
-  if (/^[a-zA-Z0-9_-]{11}$/.test(value)) {
+  if (YOUTUBE_ID.test(value)) {
     return value;
   }
 
   const url = new URL(value);
-  if (url.hostname.includes("youtu.be")) {
-    return basename(url.pathname);
+  const candidate = url.hostname.includes("youtu.be")
+    ? basename(url.pathname)
+    : url.searchParams.get("v");
+
+  if (candidate && YOUTUBE_ID.test(candidate)) {
+    return candidate;
   }
-  const id = url.searchParams.get("v");
-  if (id) {
-    return id;
-  }
-  throw new Error(`Could not parse YouTube video id from ${value}`);
+  throw new Error(`Could not parse a valid YouTube video id from ${value}`);
 }

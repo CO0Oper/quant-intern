@@ -11,6 +11,7 @@ import { critique } from "./critic.js";
 import { annotateChart } from "./chart_annotate.js";
 import { checkTradingViewCdp } from "./tv_cdp_health.js";
 import { summarizeResults as toResultRecord, recordResult } from "./results_log.js";
+import { canonicalName } from "./strategy_store.js";
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -44,8 +45,11 @@ async function main() {
   const spec = await resolveAmbiguity({ draftSpec });
   await writeText("cache/final_spec.json", JSON.stringify(spec, null, 2));
 
+  const savedName = canonicalName({ symbol: spec.symbol, title: spec.title, rerun: 0 });
+  log.step("Canonical name", savedName);
+
   log.step("Pine Coder agent");
-  const pine = await generatePine({ spec });
+  const pine = await generatePine({ spec, canonicalName: savedName });
   await writeText("cache/generated_strategy.pine", pine);
 
   const adapter = createTradingViewMcpAdapter();
@@ -56,7 +60,7 @@ async function main() {
   }
 
   log.step("Compile/Fix agent");
-  const compileStatus = await compileAndFix({ adapter, source: pine });
+  const compileStatus = await compileAndFix({ adapter, source: pine, savedName, log });
   await writeText("cache/compile_status.json", JSON.stringify(compileStatus, null, 2));
 
   log.step("Backtest Runner");

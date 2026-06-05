@@ -7,6 +7,7 @@
     "start": "node src/harness.js",
     "tv:health": "node src/tv_cdp_health.js",
     "record": "node src/record_result.js",
-    "check": "node --check src/harness.js && node --check src/results_log.js && node --check src/record_result.js"
+    "ui": "node src/ui_server.js",
+    "check": "node --check src/harness.js && node --check src/results_log.js && node --check src/record_result.js && node --check src/compile_loop.js && node --check src/pine_generate.js && node --check src/strategy_store.js && node --check src/ui_log.js && node --check src/ui_server.js && node src/strategy_store.test.js"
   }
 }
