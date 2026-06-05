@@ -1,5 +1,11 @@
 <p align="center">
-  <img src="assets/qi-logo.png" alt="Quant Intern logo" width="180" />
+  <a href="https://co0oper.github.io/quant-intern/">
+    <img src="assets/banner.jpg" alt="Quant Intern — does that YouTube trading strategy actually work?" width="100%" />
+  </a>
+</p>
+
+<p align="center">
+  <img src="assets/qi-logo.png" alt="Quant Intern logo" width="120" />
 </p>
 
 <h1 align="center">Quant Intern</h1>
