@@ -184,6 +184,42 @@
   footer a{color:var(--muted)}footer a:hover{color:var(--fg)}
   .disc{max-width:var(--maxw);margin:18px auto 0;padding:0 24px;color:var(--faint);font-size:11.5px;line-height:1.5;opacity:.8}
 
+  /* ===== CASE STUDY (video + results) ===== */
+  .case{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:stretch}
+  @media(max-width:920px){.case{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .panel .phead{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--border);background:var(--panel2)}
+  .panel .phead .lab{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .yt{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+  .yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .vmeta{padding:18px 20px}
+  .vmeta .vtitle{font-size:18px;font-weight:700;letter-spacing:-.01em;line-height:1.3}
+  .vmeta .vsub{color:var(--muted);font-size:13.5px;margin-top:8px}
+  .vmeta .claims{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .tagpill{font-family:var(--mono);font-size:11.5px;color:var(--c2);background:rgba(56,189,248,.08);
+    border:1px solid rgba(56,189,248,.2);padding:4px 10px;border-radius:999px}
+  .vproblem{padding:0 20px 20px;color:var(--faint);font-size:13px;line-height:1.55}
+
+  .verdict-big{padding:20px;border-bottom:1px solid var(--border);text-align:center}
+  .verdict-big .score{font-family:var(--mono);font-weight:700;font-size:40px;letter-spacing:-.03em;color:var(--red)}
+  .verdict-big .lbl{color:var(--muted);font-size:13px;margin-top:2px}
+  .verdict-big .tag{display:inline-block;margin-top:12px;font-weight:700;font-size:12.5px;color:var(--red);
+    background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);padding:6px 14px;border-radius:999px}
+  .ptable{overflow-x:auto;flex:1}
+  .ptable table{min-width:0}
+  .ptable th,.ptable td{padding:10px 16px}
+  .pfoot{padding:13px 18px;border-top:1px solid var(--border);color:var(--faint);font-size:12px;font-family:var(--mono)}
+
+  /* gallery */
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:26px}
+  @media(max-width:760px){.gallery{grid-template-columns:1fr}}
+  figure.shot{margin:0;background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.2s}
+  figure.shot:hover{border-color:var(--border2);transform:translateY(-3px)}
+  figure.shot img{display:block;width:100%;height:auto;border-bottom:1px solid var(--border)}
+  figure.shot figcaption{padding:13px 16px;font-size:13px;color:var(--muted)}
+  figure.shot figcaption b{color:var(--fg);font-family:var(--mono);font-weight:600}
+  figure.shot .v{font-weight:600}.figbeat .v{color:var(--green)}.figlose .v{color:var(--red)}
+
   /* reveal */
   .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
   .reveal.in{opacity:1;transform:none}
@@ -233,8 +269,8 @@
 <div class="stats">
   <div class="wrap">
     <div class="stat reveal"><div class="n grad" data-count="8">8</div><div class="l">automated steps</div></div>
-    <div class="stat reveal"><div class="n" data-count="9" data-suffix="">9</div><div class="l">backtests / run</div></div>
-    <div class="stat reveal"><div class="n neg" data-count="1" data-prefix="" data-suffix="/9">1/9</div><div class="l">beat buy &amp; hold</div></div>
+    <div class="stat reveal"><div class="n" data-count="24">24</div><div class="l">backtests / run</div></div>
+    <div class="stat reveal"><div class="n neg" data-count="3" data-suffix="/24">3/24</div><div class="l">beat buy &amp; hold</div></div>
     <div class="stat reveal"><div class="n grad" data-count="0">0</div><div class="l">API keys required</div></div>
   </div>
 </div>
@@ -276,32 +312,69 @@
 <section id="results" style="padding-top:34px">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="kicker">A real run</div>
-      <h2>“Bollinger Bands + RSI” — the receipts</h2>
-      <p>A popular mean-reversion strategy, run end-to-end on a video it had never seen,
-        across nine market/timeframe cells. The honest result:</p>
+      <div class="kicker">A real run · video → verdict</div>
+      <h2>“The Only Trading Strategy You'll&nbsp;Ever&nbsp;Need”</h2>
+      <p>We fed Quant Intern this exact video and let it run end-to-end — transcript to
+        backtested verdict — across a 24-cell ticker × timeframe matrix. Here's the receipt:</p>
     </div>
-    <div class="results-wrap reveal">
-      <div class="results-top">
-        <span class="vid">▶ youtube.com/watch?v=pCmJ8wsAS_w</span>
-        <span class="verdict">✕ 1 / 9 beat buy &amp; hold → SKIP</span>
+
+    <div class="case">
+      <!-- LEFT: the source video -->
+      <div class="panel reveal">
+        <div class="phead"><span class="lab">▶ the source video</span></div>
+        <div class="yt">
+          <iframe src="https://www.youtube.com/embed/e-QmGJU1XYc?start=164&rel=0"
+            title="The Only Trading Strategy You'll Ever Need" loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+        <div class="vmeta">
+          <div class="vtitle">The Only Trading Strategy You'll Ever Need</div>
+          <div class="vsub">A 3-step price-action method: market-structure break → supply/demand zones → 2.5R filter.</div>
+          <div class="claims">
+            <span class="tagpill">market structure</span>
+            <span class="tagpill">supply / demand</span>
+            <span class="tagpill">2.5 : 1 reward-risk</span>
+          </div>
+        </div>
+        <div class="vproblem">↳ The agent transcribed it, turned the rules into a Strategy Spec, generated PineScript v5, compiled it clean on the first try, and backtested it on a live TradingView chart.</div>
       </div>
-      <div class="tablewrap">
-        <table>
-          <thead><tr>
-            <th class="l">Symbol</th><th>TF</th><th>Strategy net</th><th>Buy &amp; hold</th><th>Verdict</th><th>Profit factor</th>
-          </tr></thead>
-          <tbody>
-            <tr><td class="l sym">XAU/USD</td><td>5m</td><td class="neg">−0.19%</td><td class="neg">−14.19%</td><td><span class="pill beats">beats</span></td><td>0.996</td></tr>
-            <tr><td class="l sym">XAU/USD</td><td>1h</td><td class="neg">−12.22%</td><td class="pos">+143.5%</td><td><span class="pill loses">loses</span></td><td>0.88</td></tr>
-            <tr><td class="l sym">XAU/USD</td><td>1D</td><td class="neg">−65.42%</td><td class="pos">+2540%</td><td><span class="pill loses">loses</span></td><td>0.72</td></tr>
-            <tr><td class="l sym">EUR/USD</td><td>1h</td><td class="pos">+7.82%</td><td class="pos">+10.43%</td><td><span class="pill loses">loses</span></td><td>1.22</td></tr>
-            <tr><td class="l sym">NQ1!</td><td>1h</td><td class="pos">+10.98%</td><td class="pos">+150.5%</td><td><span class="pill loses">loses</span></td><td>1.12</td></tr>
-            <tr><td class="l sym">ES1!</td><td>1h</td><td class="neg">−5.60%</td><td class="pos">+89.31%</td><td><span class="pill loses">loses</span></td><td>0.92</td></tr>
-          </tbody>
-        </table>
+
+      <!-- RIGHT: the verdict + results -->
+      <div class="panel reveal">
+        <div class="phead"><span class="lab">⚖ verdict vs buy &amp; hold</span></div>
+        <div class="verdict-big">
+          <div class="score">3 / 24</div>
+          <div class="lbl">cells beat their own buy &amp; hold</div>
+          <span class="tag">✕ does not generalize → SKIP</span>
+        </div>
+        <div class="ptable">
+          <table>
+            <thead><tr><th class="l">Symbol</th><th>TF</th><th>Net</th><th>Buy&amp;hold</th><th>Verdict</th></tr></thead>
+            <tbody>
+              <tr><td class="l sym">XAU/USD</td><td>5m</td><td class="neg">−1.08%</td><td class="neg">−13.64%</td><td><span class="pill beats">beats</span></td></tr>
+              <tr><td class="l sym">EUR/USD</td><td>4h</td><td class="pos">+1.58%</td><td class="neg">−16.20%</td><td><span class="pill beats">beats</span></td></tr>
+              <tr><td class="l sym">EUR/USD</td><td>1h</td><td class="pos">+1.70%</td><td class="pos">+7.59%</td><td><span class="pill loses">loses</span></td></tr>
+              <tr><td class="l sym">XAU/USD</td><td>1h</td><td class="neg">−0.36%</td><td class="pos">+132.7%</td><td><span class="pill loses">loses</span></td></tr>
+              <tr><td class="l sym">NQ1!</td><td>1D</td><td class="neg">−4.83%</td><td class="pos">+2074%</td><td><span class="pill loses">loses</span></td></tr>
+              <tr><td class="l sym">ES1!</td><td>1D</td><td class="neg">−11.6%</td><td class="pos">+509%</td><td><span class="pill loses">loses</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pfoot">↳ 6 of 24 cells shown. It only “wins” where the market itself fell — never in a trend. Compare each row only to its own buy &amp; hold; windows differ per timeframe.</div>
       </div>
-      <div class="results-note">↳ Mean-reversion shorts get run over in a trend. Least-bad on ranging FX (EUR/USD, the only positive-Sharpe cell). Compare each row only to its own buy &amp; hold — windows differ per timeframe.</div>
+    </div>
+
+    <!-- the chart screenshots -->
+    <div class="gallery">
+      <figure class="shot figbeat reveal">
+        <img src="img/chart-eurusd.png" alt="EUR/USD 4h candle chart with the strategy applied" loading="lazy" />
+        <figcaption><b>EUR/USD · 4h</b> — a ranging market, the strategy's friendliest terrain. <span class="v">+1.58% vs −16.2% → beats.</span></figcaption>
+      </figure>
+      <figure class="shot figlose reveal">
+        <img src="img/chart-nq.png" alt="NASDAQ 100 daily candle chart with the strategy applied" loading="lazy" />
+        <figcaption><b>NASDAQ&nbsp;100 · 1D</b> — a relentless uptrend it can't keep up with. <span class="v">−4.83% vs +2074% → loses.</span></figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -377,12 +450,12 @@
   const lines=[
     {h:'<span class="cmd"><span class="p">$</span> quant-intern run &lt;youtube-url&gt;</span>',d:380},
     {h:'<span class="info">› fetching transcript…</span>',d:520},
-    {h:'<span class="ok">✓ transcript fetched</span>  <span class="info">1,292 words</span>',d:300},
-    {h:'<span class="ok">✓ rules extracted</span>  <span class="info">Bollinger(30,2) + RSI(13)</span>',d:340},
-    {h:'<span class="ok">✓ ambiguity resolved</span>  <span class="info">+ squeeze filter</span>',d:340},
+    {h:'<span class="ok">✓ transcript fetched</span>  <span class="info">3-step price-action formula</span>',d:300},
+    {h:'<span class="ok">✓ rules extracted</span>  <span class="info">structure + supply/demand + 2.5R</span>',d:340},
+    {h:'<span class="ok">✓ ambiguity resolved</span>  <span class="info">→ Strategy Spec</span>',d:340},
     {h:'<span class="ok">✓ PineScript compiled</span>  <span class="info">clean · 1st attempt</span>',d:380},
-    {h:'<span class="info">› backtesting 9 cells vs buy &amp; hold…</span>',d:620},
-    {h:'<span class="bad">✕ 1 / 9 beat buy &amp; hold</span>',d:240},
+    {h:'<span class="info">› backtesting 24 cells vs buy &amp; hold…</span>',d:620},
+    {h:'<span class="bad">✕ 3 / 24 beat buy &amp; hold</span>',d:240},
     {h:'<span class="warn">⚑ verdict: SKIP — does not generalize</span>',d:200},
   ];
   const body=document.getElementById('termBody');
